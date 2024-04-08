@@ -52,13 +52,16 @@ jobs:
         username: ${{github.actor}}
         password: ${{secrets.DOCKER_TOKEN}}
 
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
+    - name: Build Docker Image
       if: ${{ steps.check.outputs.isBuild }} == 'true'
-      with:
-        push: true
-        tags: ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}
-        file: ../transfermarket-api/Dockerfile
+      working-directory: "./transfermarket-api"
+      run: | 
+        docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
+    - name: Push Docker Image
+      if: ${{ steps.check.outputs.isBuild }} == 'true'
+      working-directory: "./transfermarket-api"
+      run: | 
+        docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
 
   deploy:
     runs-on: ubuntu-latest
