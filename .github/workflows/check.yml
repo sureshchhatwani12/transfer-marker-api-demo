@@ -78,6 +78,7 @@ jobs:
               uses: azure/webapps-deploy@v2
               with:
                   app-name: 'opentransfermktapi1'
+                  publish-profile: ${{ secrets.azureWebAppPublishProfile }}
                   images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.checkout-transfer-market-api.outputs.imageTag}}'
               
             
