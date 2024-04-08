@@ -8,12 +8,20 @@ jobs:
     checkout-transfer-market-api:
         runs-on: ubuntu-latest
         outputs:
-            imageTag: ${{steps.check.outputs.newTag}}"
+            imageTag: ${{steps.getsha.outputs.latest_sha}}"
         steps: 
             - uses: actions/checkout@v4
               with:
                 repository: "felipeall/transfermarkt-api"
                 path: './transfermarket-api'
+            
+            - id: getsha
+              working-directory: "./transfermarket-api"
+              name: 'Get SHA'
+              run: | 
+                latest_sha=$(git rev-parse HEAD)
+                echo "$latest_sha=$latest_sha" >> $GITHUB_OUTPUT  
+
             - id: check
               name: 'Check if build is required or not'
               working-directory: "./transfermarket-api"
@@ -21,7 +29,6 @@ jobs:
                 latest_sha=$(git rev-parse HEAD)
                 # Compare the provided SHA with the latest SHA and confirm whether build is required
                 if [ "${{vars.LATEST_SHA}}" = "$latest_sha" ]; then
-                    echo "${{vars.LATEST_SHA}}=$newTag" >> $GITHUB_OUTPUT
                     echo "true=$isBuild" >> $GITHUB_OUTPUT    
                 else
                     echo "true=$isBuild" >> $GITHUB_OUTPUT
@@ -46,12 +53,12 @@ jobs:
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}"
+                docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
             - name: Push Docker Image
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}"
+                docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
     
     deployment:
         runs-on: ubuntu-latest
@@ -76,6 +83,6 @@ jobs:
               uses: azure/webapps-deploy@v2
               with:
                   app-name: 'opentransfermktapi1'
-                  images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}'
+                  images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.checkout-transfer-market-api.outputs.imageTag}}'
               
             
