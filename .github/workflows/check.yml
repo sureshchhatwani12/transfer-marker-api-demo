@@ -28,7 +28,7 @@ jobs:
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               uses: docker/metadata-action@v3
               with:
-                  images: ghcr.io/sureshchhatani12/transfermktapidemo
+                  images: ghcr.io/sureshchhatani12/transfer-market-api-demo
                   tags: |
                     type=ref,event=branch,suffix=-{{ sha }}
                     type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
@@ -50,20 +50,13 @@ jobs:
                 username: ${{github.actor}}
                 password: ${{secrets.DOCKER_TOKEN}}
 
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v5
+            - name: Build Docker Image
               if: ${{ steps.check.outputs.isBuild }} == 'true'
-              with:
-                  # the Dockerfile is at the root of the workspace
-                  context: ./transfermarket-api
-                  # only push when requested
-                  push: true
-                  # pass the output of the metadata action
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
-                  # use layer caching
-                  # The mode=max is to also cache the builder image
-                  # (vs only the final image - mode: min)
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
-
+              working-directory: "./transfermarket-api"
+              run: | 
+                docker build . -t ${{ steps.meta.outputs.tags }}
+            - name: Push Docker Image
+              if: ${{ steps.check.outputs.isBuild }} == 'true'
+              working-directory: "./transfermarket-api"
+              run: | 
+                docker push ${{ steps.meta.outputs.tags }}
