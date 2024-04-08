@@ -4,6 +4,9 @@
 name: Build and deploy container app to Azure Web App - opentransfermktapi1
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -20,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://ghcr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_b144758437d646dfbad02e4b3a7e1e13 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_26f972c7ae6b4a38bcbb87ed6771e038 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_c4393a2baefd400ba14f165b8ade8bf6 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_df229bc5f5634cb48c2fa293fd07e0d3 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_b144758437d646dfbad02e4b3a7e1e13 }}/sureshchhatwani12/transfermarketapi:${{ github.sha }}
+        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_c4393a2baefd400ba14f165b8ade8bf6 }}/sureshchhatwani12/transfermarketapi:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -44,5 +47,5 @@ jobs:
       with:
         app-name: 'opentransfermktapi1'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_56d5458fc0a7419fb27c4cadc87edb46 }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_b144758437d646dfbad02e4b3a7e1e13 }}/sureshchhatwani12/transfermarketapi:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_705a1ae5eb9b41878aeafbc4cdd93c08 }}
+        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_c4393a2baefd400ba14f165b8ade8bf6 }}/sureshchhatwani12/transfermarketapi:${{ github.sha }}'
