@@ -65,12 +65,17 @@ jobs:
         runs-on: ubuntu-latest
         environment: production
         needs: checkout-transfer-market-api
+        permissions:
+            id-token: write # This is required for requesting the JWT
         steps:
-            - name: 'Updating the app image'
-              uses: azure/webapps-deploy@v2
+            - name: 'Az CLI login'
+              uses: azure/login@v1
               with:
-                  app-name: 'opentransfermktapi1'
-                  publish-profile: ${{ secrets.azureWebAppPublishProfile }}
-                  images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.checkout-transfer-market-api.outputs.imageTag}}'
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            - name: 'Updating the app image'
+              run: | 
+               az webapp config container set --resource-group 'Transfer-Market-API' -n 'opentransfermktapi1'     --docker-custom-image-name  'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.checkout-transfer-market-api.outputs.imageTag}}'
               
             
