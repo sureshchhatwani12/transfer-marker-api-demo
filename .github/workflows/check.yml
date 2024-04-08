@@ -16,7 +16,9 @@ jobs:
               name: 'Check if build is required or not'
               working-directory: "./transfermarket-api"
               run: |
-                if [ "${{github.sha}}" = "$latest_sha" ]; then
+                latest_sha=$(git rev-parse HEAD)
+                # Compare the provided SHA with the latest SHA and confirm whether build is required
+                if [ "${{vars.LATEST_SHA}}" = "$latest_sha" ]; then
                     echo "true=$isBuild" >> $GITHUB_OUTPUT    
                 else
                     echo "true=$isBuild" >> $GITHUB_OUTPUT
