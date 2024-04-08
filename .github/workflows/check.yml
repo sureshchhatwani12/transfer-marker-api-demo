@@ -68,22 +68,11 @@ jobs:
         permissions:
             id-token: write # This is required for requesting the JWT
         steps:
-            - name: 'Login to GitHub Container Registry'
-              uses: docker/login-action@v1
-              with:
-                registry: ghcr.io
-                username: ${{github.actor}}
-                password: ${{secrets.DOCKER_TOKEN}}
-            - name: 'Az CLI login'
-              uses: azure/login@v1
-              with:
-                client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            - name: 'Updating the app image'
+            - name: 'Deploy to Azure Web App'
               uses: azure/webapps-deploy@v2
               with:
                   app-name: 'opentransfermktapi1'
+                  publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_56D5458FC0A7419FB27C4CADC87EDB46 }}
                   images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.checkout-transfer-market-api.outputs.imageTag}}'
               
             
