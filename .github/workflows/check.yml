@@ -16,24 +16,11 @@ jobs:
               name: 'Check if build is required or not'
               working-directory: "./transfermarket-api"
               run: |
-                latest_sha=$(git rev-parse HEAD)
-                # Compare the provided SHA with the latest SHA and confirm whether build is required
-                if [ "${{vars.LATEST_SHA}}" = "$latest_sha" ]; then
+                if [ "${{github.sha}}" = "$latest_sha" ]; then
                     echo "true=$isBuild" >> $GITHUB_OUTPUT    
                 else
                     echo "true=$isBuild" >> $GITHUB_OUTPUT
                 fi
-            - name: Extract Docker metadata
-              id: meta
-              if: ${{ steps.check.outputs.isBuild }} == 'true'
-              uses: docker/metadata-action@v3
-              with:
-                  images: ghcr.io/sureshchhatani12/transfer-market-api-demo
-                  tags: |
-                    type=ref,event=branch,suffix=-{{ sha }}
-                    type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
-                  flavor: |
-                    latest=false
             - name: Set up QEMU
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               uses: docker/setup-qemu-action@v3
@@ -54,9 +41,9 @@ jobs:
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker build . -t ${{ steps.meta.outputs.tags }}
+                docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{github.sha}}"
             - name: Push Docker Image
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker push ${{ steps.meta.outputs.tags }}
+                docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{github.sha}}"
