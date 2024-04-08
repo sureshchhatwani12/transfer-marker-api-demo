@@ -7,6 +7,8 @@ on:
 jobs:
     checkout-transfer-market-api:
         runs-on: ubuntu-latest
+        outputs:
+            imageTag: ${{steps.check.outputs.newTag}}"
         steps: 
             - uses: actions/checkout@v4
               with:
@@ -19,6 +21,7 @@ jobs:
                 latest_sha=$(git rev-parse HEAD)
                 # Compare the provided SHA with the latest SHA and confirm whether build is required
                 if [ "${{vars.LATEST_SHA}}" = "$latest_sha" ]; then
+                    echo "${{vars.LATEST_SHA}}=$newTag" >> $GITHUB_OUTPUT
                     echo "true=$isBuild" >> $GITHUB_OUTPUT    
                 else
                     echo "true=$isBuild" >> $GITHUB_OUTPUT
@@ -43,9 +46,36 @@ jobs:
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{github.sha}}"
+                docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}"
             - name: Push Docker Image
               if: ${{ steps.check.outputs.isBuild }} == 'true'
               working-directory: "./transfermarket-api"
               run: | 
-                docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{github.sha}}"
+                docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}"
+    
+    deployment:
+        runs-on: ubuntu-latest
+        environment: production
+        needs: checkout-transfer-market-api
+        permissions:
+            id-token: write # This is required for requesting the JWT
+        steps:
+            - name: 'Login to GitHub Container Registry'
+              uses: docker/login-action@v1
+              with:
+                registry: ghcr.io
+                username: ${{github.actor}}
+                password: ${{secrets.DOCKER_TOKEN}}
+            - name: 'Az CLI login'
+              uses: azure/login@v1
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            - name: 'Updating the app image'
+              uses: azure/webapps-deploy@v2
+              with:
+                  app-name: 'opentransfermktapi1'
+                  images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.check.outputs.newTag}}'
+              
+            
