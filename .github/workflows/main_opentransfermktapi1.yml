@@ -56,12 +56,12 @@ jobs:
       if: ${{ steps.check.outputs.isBuild }} == 'true'
       working-directory: "./transfermarket-api"
       run: | 
-        docker build . -t "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
+        docker build . -t "ghcr.io/${{secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_B144758437D646DFBAD02E4B3A7E1E13}}/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
     - name: Push Docker Image
       if: ${{ steps.check.outputs.isBuild }} == 'true'
       working-directory: "./transfermarket-api"
       run: | 
-        docker push "ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
+        docker push "ghcr.io/${{secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_B144758437D646DFBAD02E4B3A7E1E13}}/transfermarketapi:${{steps.getsha.outputs.latest_sha}}"
 
   deploy:
     runs-on: ubuntu-latest
@@ -77,4 +77,4 @@ jobs:
         app-name: 'opentransfermktapi1'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_705a1ae5eb9b41878aeafbc4cdd93c08 }}
-        images: 'ghcr.io/sureshchhatwani12/transfermarketapi:${{needs.build.outputs.imageTag}}'
+        images: 'ghcr.io/${{secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_B144758437D646DFBAD02E4B3A7E1E13}}/transfermarketapi:${{needs.build.outputs.imageTag}}'
