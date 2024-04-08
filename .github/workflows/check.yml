@@ -1,0 +1,26 @@
+name: "Check whether new release is available"
+on:
+    schedule:
+        - cron: '0 */4 * * *'
+
+jobs:
+    check-release-available:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.getversion.outputs.version }}
+        steps:
+            - uses: actions/checkout@v4
+            - id: getversion
+              run: 
+                source get_new_release.sh
+                $version=get_latest_release "felipeall/transfermarkt-api"
+                echo "Version [$version]"
+                echo "version=$version" >> $GITHUB_OUTPUT 
+    checkout-transfer-market-api:
+        runs-on: ubuntu-latest
+        needs: check-release-available
+        steps: 
+            - uses: actions/checkout@v4
+              with:
+                repository: "felipeall/transfermarkt-api"
+                path: './transfermarket-api'  
