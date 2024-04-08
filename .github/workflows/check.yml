@@ -1,5 +1,6 @@
 name: "Check whether new release is available"
 on:
+    workflow_dispatch: 
     schedule:
         - cron: '0 */4 * * *'
 
