@@ -14,7 +14,7 @@ jobs:
             - id: getversion
               run: 
                 source get_new_release.sh
-                $version=get_latest_release "felipeall/transfermarkt-api"
+                $version=$(get_latest_release "felipeall/transfermarkt-api")
                 echo "Version [$version]"
                 echo "version=$version" >> $GITHUB_OUTPUT 
     checkout-transfer-market-api:
