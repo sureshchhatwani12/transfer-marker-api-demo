@@ -58,7 +58,7 @@ jobs:
       with:
         push: true
         tags: ghcr.io/sureshchhatwani12/transfermarketapi:${{steps.getsha.outputs.latest_sha}}
-        file: ./transfermarket-api/Dockerfile
+        file: ../transfermarket-api/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
