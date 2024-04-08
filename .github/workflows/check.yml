@@ -21,6 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: check
         steps: 
+            - run: echo 'checking out ${{ needs.check.outputs.version }}'
             - uses: actions/checkout@v4
               with:
                 repository: "felipeall/transfermarkt-api"
